@@ -1,0 +1,4 @@
+repository "Dice Breaker 2D@lonewolf032@cloud"
+  path "/"
+    br "/main"
+    co "/main"
