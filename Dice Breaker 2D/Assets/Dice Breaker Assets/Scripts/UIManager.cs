@@ -13,11 +13,13 @@ public class UIManager : MonoBehaviour
     public void RestartGame()
     {
         Time.timeScale = 1f;
+        SoundManager.PlaySound(SoundType.BUTTON_CLICK);
         MyScenesManager.instance.LoadGameScene();
     }
 
     public void QuitGame()
     {
+        SoundManager.PlaySound(SoundType.BUTTON_CLICK);
         MyScenesManager.instance.QuitGame();
     }
 }

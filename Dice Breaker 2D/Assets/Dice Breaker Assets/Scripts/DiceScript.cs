@@ -169,12 +169,14 @@ public class DiceScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Block") && diceState == DiceState.throwState)
         {
+            SoundManager.PlaySound(SoundType.BLOCK_COLLIDE);                
             CamShake.instance.ShakeCamera(camShakeAmp, camShakeDuration);
             Blocks block = collision.gameObject.GetComponent<Blocks>();
             int temp = diceNumber;
             diceNumber -= block.GetHP();
             block.Damage(temp);
             diceNumberText.text = Convert.ToString(diceNumber);
+            
         }
         if (collision.gameObject.CompareTag("Bounds"))
         {
@@ -183,10 +185,12 @@ public class DiceScript : MonoBehaviour
             transform.up = dir.normalized;
             //print($"After Transform : {transform.up}");
 
+            SoundManager.PlaySound(SoundType.WALL_COLLIDE);
             CamShake.instance.ShakeCamera(camShakeAmp, camShakeDuration);
         }
         if (diceNumber <= 0)
         {
+            SoundManager.PlaySound(SoundType.BLOCK_DESTROY);
             diceState = DiceState.destroyState;
             objectPool.Release(this);
             ResetDice();
