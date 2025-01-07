@@ -20,10 +20,10 @@ namespace DiceBreakerUtility
         public static Vector2 ReflectVector(Vector2 dir, Collision2D collision)
         {
             Vector2 inNormal = collision.contacts[0].normal;
-            Debug.Log($"Normal : {inNormal}");
+           // Debug.Log($"Normal : {inNormal}");
 
             Vector2 refVec = Vector2.Reflect(dir, inNormal);
-            Debug.Log($"RefVec = {refVec}");
+            //Debug.Log($"RefVec = {refVec}");
             return refVec;
         }
 

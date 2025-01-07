@@ -1,13 +1,14 @@
 using UnityEngine;
 using UnityEngine.Pool;
 using DiceBreakerUtility;
+using TMPro;
 
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance { get; private set; }
     bool gameOver = false;
-
+    private ScoreScript scoreScript;
     private float screenHalfWidth, screenHalfHeight,linePosX, linePosY;
 
     [SerializeField]
@@ -97,6 +98,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private GameObject gameOverUI;
+    [SerializeField]
+    private TextMeshProUGUI finalScore;
 
     void Awake()
     {
@@ -118,13 +121,14 @@ public class GameManager : MonoBehaviour
         {
             SpawnDice();
         }
-
+        scoreScript = FindAnyObjectByType<ScoreScript>();
         HealthManager.Instance.OnGameOver += GameOverHandler;
     }
 
     private void GameOverHandler()
     {
         gameOver = true;
+        finalScore.text = $"Final Score {scoreScript.GetScore()}";
         gameOverUI.SetActive(true);
         Time.timeScale = 0;
     }
@@ -166,7 +170,7 @@ public class GameManager : MonoBehaviour
     {
         DiceScript diceScript = Instantiate(dice, spawnPoint.transform.position, Quaternion.identity);
         diceScript.gameObject.tag = DICE_TAG;
-        diceScript.DiceRoll();
+        //diceScript.DiceRoll();
         diceScript.objectPool = _dicePool;
         return diceScript;
     }

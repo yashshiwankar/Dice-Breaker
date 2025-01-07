@@ -6,6 +6,7 @@ using System.Collections;
 using UnityEngine.Pool;
 using UnityEngine.InputSystem.EnhancedTouch;
 using ETouch= UnityEngine.InputSystem.EnhancedTouch;
+using Cinemachine.Utility;
 
 public class DiceScript : MonoBehaviour
 {
@@ -17,12 +18,11 @@ public class DiceScript : MonoBehaviour
     private Rigidbody2D diceRb;
     public ObjectPool<DiceScript> objectPool;
 
-    [SerializeField]
-    TextMeshProUGUI diceNumberText;
+    //[SerializeField]TextMeshProUGUI diceNumberText;
     
     public DiceState diceState;
 
-    const string IGNORE_COLLISION_LAYER = "Ignore Collisions", PLAYER_LAYER = "Player";
+    const string IGNORE_COLLISION_LAYER = "Ignore Collisions", PLAYER_LAYER = "Player", DICE_NUMBER = "Dice Number";
     [SerializeField]
     private float
         collisionColliderRadius = 0.5f,
@@ -43,19 +43,28 @@ public class DiceScript : MonoBehaviour
     Vector3 worldPoints;
     Vector2 startScreenPos;
     CircleCollider2D diceCollider;
-
+    LineEffect lineEffect;
+    GameObject[] diceNumArray = new GameObject[6];
     private void Awake()
     {
         cam = Camera.main;
         diceRb = GetComponent<Rigidbody2D>();
         diceCollider = GetComponent<CircleCollider2D>();
         diceCollider.radius = detectionColliderRadius;
-        DiceRoll();
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            if (transform.GetChild(i).CompareTag(DICE_NUMBER))
+            {
+                diceNumArray[i] = transform.GetChild(i).gameObject;
+            }
+        }
+        //DiceRoll();
         if (spawnPoint == null)
         {
             spawnPoint = GameObject.FindWithTag("Spawn Point");
         }
         minRadius = transform.localScale.x / 2 + minRadiusOffset;
+        lineEffect = FindAnyObjectByType<LineEffect>();
     }
 
     private void OnEnable()
@@ -98,21 +107,18 @@ public class DiceScript : MonoBehaviour
     {
         if (diceState == DiceState.selectedState)
         {
-            Vector3 screenPoints = new Vector3(touchedFinger.screenPosition.x, touchedFinger.screenPosition.y, 0f);
+            Vector3 screenPoints = touchedFinger.screenPosition;
             worldPoints = cam.ScreenToWorldPoint(screenPoints);
-            worldPoints.z = 0f;
-            dir = worldPoints - transform.position;
-            Vector2 rotvec = worldPoints - transform.position;
-            transform.up = -rotvec.normalized;
+            dir = spawnPoint.transform.position - worldPoints;
+            Debug.Log($"WORLD POINT {worldPoints}\nDIR {dir}");
+            dir.z = 0f;
+            transform.rotation = Quaternion.FromToRotation(Vector3.up, dir.normalized);            
+            lineEffect.DrawLineEffect(transform.position, dir);
         }
     }
+
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && diceState == DiceState.readyState)
-        {
-            diceNumber = UnityEngine.Random.Range(1, maxDiceNum + 1);
-            diceNumberText.text = Convert.ToString(diceNumber);
-        }
         if (transform.position.y > Utilty.GetScreenHalfHeight() + (gameObject.transform.localScale.x/2))
         {
             objectPool.Release(this);
@@ -127,7 +133,7 @@ public class DiceScript : MonoBehaviour
         diceCollider.radius = collisionColliderRadius;
         distanceMultiplier = dir.magnitude;
         distanceMultiplier = Mathf.Clamp(distanceMultiplier, 0f, multiplierLimit);
-        dir = transform.up;
+        //dir = transform.up;
         ChangeCollisionLayer(PLAYER_LAYER);
         while (diceState == DiceState.throwState)
         {
@@ -147,16 +153,20 @@ public class DiceScript : MonoBehaviour
     public void DiceRoll()
     {
         diceState = DiceState.readyState;
-        if(gameObject.activeInHierarchy == false)
+        if (gameObject.activeInHierarchy == false)
             gameObject.SetActive(true);
 
         diceNumber = UnityEngine.Random.Range(1, maxDiceNum + 1);
-        diceNumberText.text = Convert.ToString(diceNumber);
+        //diceNumberText.text = Convert.ToString(diceNumber);
+        diceNumArray[diceNumber - 1].SetActive(true);
         ChangeCollisionLayer(IGNORE_COLLISION_LAYER);
     }
-
     public void ResetDice()
     {
+        foreach(var die in diceNumArray)
+        {
+            die.SetActive(false);
+        }
         this.gameObject.SetActive(false);
         diceRb.velocity = Vector2.zero;
         //Null ref error here
@@ -175,7 +185,11 @@ public class DiceScript : MonoBehaviour
             int temp = diceNumber;
             diceNumber -= block.GetHP();
             block.Damage(temp);
-            diceNumberText.text = Convert.ToString(diceNumber);
+            diceNumArray[temp - 1].SetActive(false);
+            if (diceNumber > 0)
+            {
+                diceNumArray[diceNumber - 1].SetActive(true);
+            }
             
         }
         if (collision.gameObject.CompareTag("Bounds"))
@@ -196,10 +210,9 @@ public class DiceScript : MonoBehaviour
             ResetDice();
         }
     }
-
     private void OnDrawGizmos()
     {
         Debug.DrawRay(transform.position, transform.up, Color.green);
-        Debug.DrawRay(transform.position, -dir, Color.green);
+        Debug.DrawRay(transform.position, dir, Color.red);
     }
 }
