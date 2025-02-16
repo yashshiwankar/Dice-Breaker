@@ -10,6 +10,7 @@ TagManager:
   - Dice
   - DiceDetection
   - Dice Number
+  - Enemy Dice Number
   layers:
   - Default
   - TransparentFX

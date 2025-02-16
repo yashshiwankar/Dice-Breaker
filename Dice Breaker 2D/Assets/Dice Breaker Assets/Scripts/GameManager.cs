@@ -14,7 +14,34 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     PhysicsMaterial2D bounce;
 
-//---Blocks---
+    //---Line renderer
+    Vector3[] linePosArray;
+    [SerializeField] GameObject lineObj;
+    [SerializeField] float lineY_Ratio, lineX_Offset;
+
+    //---DICE---
+    [SerializeField] DiceScript dice;
+    DiceScript currentDice;
+    GameObject spawnPoint;
+    [SerializeField] float DiceSpawnOffset, diceSpawnRate = 0.75f;
+
+    GameObject[] bounds;
+
+    public readonly string
+        DICE_TAG = "Dice",
+        DICE_DETECTION_TAG = "DiceDetection",
+        BOUND_TAG = "Bounds",
+        UPPER_BOUND = "Upper Bound",
+        LOWER_BOUND = "Lower Bound",
+        LEFT_BOUND = "Left Bound",
+        RIGHT_BOUND = "Right Bound";
+
+    [SerializeField]
+    private GameObject gameOverUI;
+    [SerializeField]
+    private TextMeshProUGUI finalScore;
+
+    //---Blocks---
     [SerializeField] Blocks block;
     GameObject blockSpawnPoint;
 
@@ -73,33 +100,6 @@ public class GameManager : MonoBehaviour
             return _dicePool;
         }
     }
-
-//---Line renderer
-    Vector3[] linePosArray;
-    [SerializeField] GameObject lineObj;
-    [SerializeField] float lineY_Ratio, lineX_Offset;
-
-    //---DICE---
-    [SerializeField] DiceScript dice;
-    DiceScript currentDice;
-    GameObject spawnPoint;
-    [SerializeField] float DiceSpawnOffset, diceSpawnRate = 0.75f;
-
-    GameObject[] bounds;
-
-    public readonly string
-        DICE_TAG = "Dice",
-        DICE_DETECTION_TAG = "DiceDetection",
-        BOUND_TAG = "Bounds",
-        UPPER_BOUND = "Upper Bound",
-        LOWER_BOUND = "Lower Bound",
-        LEFT_BOUND = "Left Bound",
-        RIGHT_BOUND = "Right Bound";
-
-    [SerializeField]
-    private GameObject gameOverUI;
-    [SerializeField]
-    private TextMeshProUGUI finalScore;
 
     void Awake()
     {

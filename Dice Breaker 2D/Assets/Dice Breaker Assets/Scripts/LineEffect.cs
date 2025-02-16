@@ -4,33 +4,39 @@ using UnityEngine;
 
 public class LineEffect : MonoBehaviour
 {
-    [SerializeField] private GameObject dot;
-    private GameObject[] dotArray;
-    [SerializeField] int dotAmt = 7;
-    float dotGap;
-    void Start()
+    [SerializeField] private GameObject rect;
+    private LineRenderer lineRenderer;
+    [SerializeField] private Vector3 lineStartPos = new Vector3(0f, -3f, 0f); // default vals
+    [SerializeField] private Vector3 lineEndPos = new Vector3(0f, -1f, 0f);
+    
+    void Awake()
     {
-        dotGap = 1 / dotAmt;
-        SpawnDots();
+        lineRenderer = GetComponent<LineRenderer>();        
+        lineRenderer.enabled = false;
+        lineRenderer.positionCount = 2;
+        lineRenderer.SetPosition(0, lineStartPos);
+        lineRenderer.SetPosition(1, lineEndPos);
+        rect.SetActive(false);
     }
-    void SpawnDots()
+    public void DrawLineEffect(Vector3 dir)
     {
-        dotArray = new GameObject[dotAmt];
-        for (int i = 0; i < dotAmt; i++) {
-            GameObject temp = Instantiate(dot, transform.position, Quaternion.identity, transform);
-            temp.SetActive(false);
-            dotArray[i] = temp;
-        }
+        lineRenderer.enabled = true;
+        lineRenderer.SetPosition(0, Vector3.Lerp(lineStartPos, dir, dir.magnitude));
     }
-    public void DrawLineEffect(Vector3 startPos, Vector3 dir)
+    public void DrawRect()
     {
-        for(int i = 0; i < dotAmt; i++)
-        {
-            Vector3 targetPos = Vector2.Lerp(startPos, dir, i * dotGap);
-            dotArray[i].transform.position = targetPos;
-            dotArray[i].SetActive(true);
-        }
-        transform.up = dir.normalized;
+        rect.SetActive(true);
+        rect.transform.localScale = Vector3.one;
     }
-
+    public void DisableLineEffect()
+    {
+        lineRenderer.enabled = false;
+        rect.transform.localScale = Vector3.zero;
+        rect.SetActive(false);
+    }
+    private void OnDisable()
+    {
+        lineRenderer.SetPosition(0, lineStartPos);
+        lineRenderer.SetPosition(1, lineEndPos);
+    }
 }

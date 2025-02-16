@@ -85,6 +85,7 @@ public class DiceScript : MonoBehaviour
         if (hit2D.collider != null && diceState == DiceState.readyState && hit2D.collider.gameObject.CompareTag(GameManager.instance.DICE_TAG))
         {
             diceState = DiceState.selectedState;
+            lineEffect.DrawRect();
         }
     }
 
@@ -100,7 +101,9 @@ public class DiceScript : MonoBehaviour
     {
         if (diceState == DiceState.selectedState)
         {
+            lineEffect.DisableLineEffect();
             StartCoroutine("Move");
+            
         }
     }
     private void CalculateDirection(Finger touchedFinger)
@@ -113,7 +116,7 @@ public class DiceScript : MonoBehaviour
             Debug.Log($"WORLD POINT {worldPoints}\nDIR {dir}");
             dir.z = 0f;
             transform.rotation = Quaternion.FromToRotation(Vector3.up, dir.normalized);            
-            lineEffect.DrawLineEffect(transform.position, dir);
+            lineEffect.DrawLineEffect(dir);
         }
     }
 
